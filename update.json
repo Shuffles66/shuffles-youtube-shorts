@@ -1,1 +1,11 @@
-m«ëˆ§½©buªàºg§¶ê]j×£²‰Ô±¨m«ë€İ…¹îš(§~)^¢‹­~)^mºŞjFëy©ÊyÚ.¶›­º˜§¶‰bë(~W§‚Øgº`İuç(uç^r‡^Šzn¶^–—b²™ZÊØb²g¬±¨Š)éºØ§¦ë_ŠWyö®–×è®Ë]Šz(ºÚn¶‹­¦ë_ŠWyö®–×è®Ë]¢ë
+{
+  "name": "Shuffles Youtube Shorts",
+  "slug": "shuffles-youtube-shorts",
+  "version": "1.0.4",
+  "requires": "6.2",
+  "tested": "7.1.3",
+  "requires_php": "7.4",
+  "repository": "https://github.com/Shuffles66/shuffles-youtube-shorts",
+  "changelog": "https://raw.githubusercontent.com/Shuffles66/shuffles-youtube-shorts/main/CHANGELOG.md"
+}
+
