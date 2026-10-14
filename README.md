@@ -1,6 +1,6 @@
 # Shuffles Youtube Shorts
 
-A WordPress plugin for responsive YouTube Shorts galleries that automatically refresh from a nominated channel or playlist.
+A WordPress plugin for responsive YouTube Shorts galleries that automatically refresh from a nominated channel or playlist. Version 1.0.5 adds gradient-aware theme contrast so titles and messages remain readable when a theme combines a CSS gradient with a different solid fallback colour.
 
 ## Features
 

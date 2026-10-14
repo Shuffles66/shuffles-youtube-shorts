@@ -3,7 +3,7 @@
  * Plugin Name: Shuffles Youtube Shorts
  * Plugin URI:  https://github.com/Shuffles66/shuffles-youtube-shorts
  * Description: Displays automatically refreshed, responsive YouTube Shorts galleries from a channel or playlist, with server-side API key storage, a configurable shortcode, and an Elementor widget.
- * Version:     1.0.4
+ * Version:     1.0.5
  * Author:      Shuffles
  * Author URI:  https://github.com/Shuffles66
  * Text Domain: shuffles-youtube-shorts
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSYS_VERSION', '1.0.4' );
+define( 'SSYS_VERSION', '1.0.5' );
 define( 'SSYS_FILE', __FILE__ );
 define( 'SSYS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSYS_URL', plugin_dir_url( __FILE__ ) );

@@ -4,7 +4,7 @@ Tags: youtube, shorts, video, gallery, elementor
 Requires at least: 6.2
 Tested up to: 7.1.3
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 
 Responsive YouTube Shorts galleries that automatically refresh from a channel or playlist.
@@ -40,6 +40,11 @@ Features:
 The playlist takes priority when both channel and playlist are supplied. An exact public playlist title is resolved inside the nominated channel.
 
 == Changelog ==
+
+= 1.0.5 =
+* Fixed title and message contrast when a theme uses a CSS gradient over a different solid fallback colour.
+* Evaluates every gradient colour stop and selects a theme colour that remains readable across the full background.
+* Preserved the 1.0.4 playlist-title resolution and all existing settings.
 
 = 1.0.4 =
 * Added exact playlist-title support when a channel is also provided, including public-page resolution when the YouTube API is unavailable or restricted.

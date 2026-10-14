@@ -57,14 +57,29 @@
 		return (light + 0.05) / (dark + 0.05);
 	}
 
-	function effectiveBackground(element) {
+	function effectiveBackgrounds(element) {
 		for (var node = element; node; node = node.parentElement) {
-			var color = parseColor(window.getComputedStyle(node).backgroundColor);
+			var styles = window.getComputedStyle(node);
+			var imageColors = String(styles.backgroundImage || '').match(/rgba?\([^)]*\)/gi) || [];
+			imageColors = imageColors.map(parseColor).filter(function (color) {
+				return color && color.a >= 0.85;
+			});
+			if (imageColors.length) {
+				return imageColors;
+			}
+
+			var color = parseColor(styles.backgroundColor);
 			if (color && color.a >= 0.85) {
-				return color;
+				return [ color ];
 			}
 		}
-		return parseColor(window.getComputedStyle(document.body).backgroundColor) || { r: 255, g: 255, b: 255, a: 1 };
+		return [ { r: 255, g: 255, b: 255, a: 1 } ];
+	}
+
+	function minimumContrast(foreground, backgrounds) {
+		return Math.min.apply(null, backgrounds.map(function (background) {
+			return contrast(foreground, background);
+		}));
 	}
 
 	function applyThemeColor(element) {
@@ -72,7 +87,7 @@
 			return;
 		}
 
-		var background = effectiveBackground(element);
+		var backgrounds = effectiveBackgrounds(element);
 		var rootStyles = window.getComputedStyle(document.documentElement);
 		var current = window.getComputedStyle(element).color;
 		var candidates = [ current ];
@@ -87,7 +102,7 @@
 		candidates.forEach(function (value) {
 			var parsed = parseColor(value);
 			if (parsed && parsed.a >= 0.85) {
-				var ratio = contrast(parsed, background);
+				var ratio = minimumContrast(parsed, backgrounds);
 				if (ratio > best.ratio) {
 					best = { value: value, ratio: ratio };
 				}
@@ -97,7 +112,7 @@
 		if (best.ratio < 4.5) {
 			var white = { r: 255, g: 255, b: 255, a: 1 };
 			var black = { r: 0, g: 0, b: 0, a: 1 };
-			best = contrast(white, background) >= contrast(black, background) ? { value: '#fff' } : { value: '#000' };
+			best = minimumContrast(white, backgrounds) >= minimumContrast(black, backgrounds) ? { value: '#fff' } : { value: '#000' };
 		}
 
 		element.style.setProperty('--ssys-title-color', best.value);

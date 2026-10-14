@@ -2,6 +2,19 @@
 
 > Clear, practical updates for the people who run Byron Rides—not a wall of developer jargon.
 
+## 1.0.5 — 15 October 2026
+
+### Gradient-aware contrast
+
+- Fixed the remaining dark video title on the Byron Rides purple background.
+- Theme colour detection now reads CSS gradient colour stops before a theme's solid fallback colour, preventing a white fallback from being mistaken for the visible dark-purple background.
+- Chooses the colour with the strongest minimum contrast across every gradient stop, keeping titles and status messages readable across the whole section.
+
+### Upgrade impact
+
+- No shortcode or settings changes are required.
+- The playlist-title support introduced in 1.0.4 and all existing API, layout, Elementor, and playback behaviour are preserved.
+
 ## 1.0.4 — 15 October 2026
 
 ### Playlist names
