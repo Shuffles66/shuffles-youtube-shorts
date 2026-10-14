@@ -4,22 +4,31 @@
 
 ## 1.0.2 — 15 October 2026
 
-### New
+### Playback behaviour
 
-- Introduced a custom Shuffles Youtube Shorts icon across the WordPress admin menu, setup screen, and update details.
-- Added a redesigned release-history experience with version badges and clearly grouped changes.
-- Added a dedicated Shuffles category and searchable YouTube Shorts widget in the Elementor panel.
+- Only one Short can play at a time. When a viewer starts another Short, the plugin sends a pause command to every other Shuffles player on the page.
+- Enabled YouTube’s JavaScript player controls on each privacy-enhanced `youtube-nocookie.com` embed and supplies the site origin for secure player communication.
+- Added automatic player discovery for galleries inserted or refreshed after page load, including Elementor editor previews and pages containing more than one gallery.
 
-### Improved
+### Elementor integration
 
-- Made release notes easier to scan before upgrading, with responsive cards that inherit the WordPress admin palette.
-- Reduced GitHub metadata and changelog cache time from six hours to fifteen minutes.
-- Starting a Short now automatically pauses every other Short on the page, including galleries inserted dynamically by Elementor.
+- Added a dedicated **Shuffles** category to Elementor’s widget panel. The widget is named **Shuffles YouTube Shorts** and is searchable using YouTube, Shorts, video, gallery, or Shuffles.
+- Registered the widget with Elementor’s current widget manager while retaining a guarded legacy fallback for older installations.
+- Prevented duplicate registration when more than one Elementor lifecycle hook fires.
+- Updated the widget class method signatures for compatibility with current Elementor releases.
 
-### Fixed
+### Updates and release notes
 
-- WordPress “Check again” now clears the plugin’s GitHub metadata and changelog caches, so newly published updates appear immediately.
-- Hardened widget registration for current and legacy Elementor lifecycles so the widget reliably appears in the page builder.
+- Added a custom purple-and-red vertical-video icon to the WordPress admin menu, plugin setup screen, and update metadata.
+- Rebuilt the settings-page release history as responsive cards with version badges, dates, and grouped changes that remain readable on narrow screens.
+- Reduced GitHub update metadata and changelog caching from six hours to fifteen minutes.
+- WordPress **Check again** now clears this plugin’s cached GitHub metadata and release notes before checking, allowing a newly published version to appear immediately.
+
+### Upgrade impact
+
+- No shortcode changes are required, and existing channel, playlist, column, row, title, cache, and API-key settings are preserved.
+- The public YouTube feed fallback introduced in 1.0.1 remains available when the API key is missing or rejected.
+- After upgrading, reload any Elementor editor tab that was already open so its widget panel can discover the new Shuffles category.
 
 ## 1.0.1 — 14 October 2026
 

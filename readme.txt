@@ -42,11 +42,12 @@ The playlist takes priority when both channel and playlist are supplied.
 == Changelog ==
 
 = 1.0.2 =
-* Added a custom Shuffles Youtube Shorts icon throughout WordPress and GitHub update details.
-* Redesigned release notes as a professional, responsive release history.
-* Added single-player coordination so starting one Short pauses the others.
-* Added a dedicated Shuffles category and hardened Elementor widget registration.
-* Fixed stale metadata and changelog caches when an administrator uses Check again.
+* Only one Short plays at a time; starting another sends a pause command to every other Shuffles player on the page.
+* Added dynamic-player discovery for multiple galleries and Elementor-rendered content.
+* Added a dedicated Shuffles Elementor category, current and legacy registration support, duplicate-registration protection, and current method signatures.
+* Added a custom plugin icon and a responsive, card-based release history in the settings area.
+* Reduced GitHub metadata caching to fifteen minutes and made Check again clear the plugin's update and changelog caches.
+* Preserved all existing shortcodes and settings; reload an already-open Elementor editor after upgrading.
 
 = 1.0.1 =
 * Added public Shorts feed fallback so a missing or invalid API key no longer breaks channel galleries.
