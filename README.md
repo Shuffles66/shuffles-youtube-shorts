@@ -12,6 +12,7 @@ A WordPress plugin for responsive YouTube Shorts galleries that automatically re
 - Shortcode and Elementor widget support.
 - GitHub-hosted update metadata and changelog.
 - Privacy-enhanced `youtube-nocookie.com` embeds.
+- Branded plugin icon and a polished release-history display in WordPress.
 
 ## Shortcode
 

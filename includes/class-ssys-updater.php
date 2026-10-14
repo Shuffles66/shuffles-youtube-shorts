@@ -17,6 +17,16 @@ final class SSYS_Updater {
 		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'check_for_update' ) );
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_information' ), 20, 3 );
 		add_filter( 'upgrader_source_selection', array( __CLASS__, 'normalize_package_directory' ), 10, 4 );
+		add_action( 'load-update-core.php', array( __CLASS__, 'clear_cache_on_manual_check' ) );
+	}
+
+	public static function clear_cache_on_manual_check() {
+		if ( ! current_user_can( 'update_plugins' ) || empty( $_GET['force-check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		delete_site_transient( 'ssys_github_update_metadata' );
+		delete_transient( 'ssys_github_changelog' );
 	}
 
 	public static function check_for_update( $transient ) {
@@ -40,7 +50,7 @@ final class SSYS_Updater {
 			'tested'       => isset( $metadata['tested'] ) ? sanitize_text_field( $metadata['tested'] ) : '',
 			'requires'     => isset( $metadata['requires'] ) ? sanitize_text_field( $metadata['requires'] ) : '6.2',
 			'requires_php' => isset( $metadata['requires_php'] ) ? sanitize_text_field( $metadata['requires_php'] ) : '7.4',
-			'icons'        => array(),
+			'icons'        => self::icons(),
 			'banners'      => array(),
 		);
 
@@ -68,6 +78,7 @@ final class SSYS_Updater {
 			'requires_php'  => isset( $metadata['requires_php'] ) ? sanitize_text_field( $metadata['requires_php'] ) : '7.4',
 			'tested'        => isset( $metadata['tested'] ) ? sanitize_text_field( $metadata['tested'] ) : '',
 			'download_link' => self::package_url( $metadata ),
+			'icons'         => self::icons(),
 			'sections'      => array(
 				'description' => '<p>Responsive YouTube Shorts galleries that automatically refresh from a channel or playlist.</p>',
 				'changelog'   => self::get_changelog_html(),
@@ -108,7 +119,7 @@ final class SSYS_Updater {
 			);
 			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 				$markdown = wp_remote_retrieve_body( $response );
-				set_transient( $cache_key, $markdown, 6 * HOUR_IN_SECONDS );
+				set_transient( $cache_key, $markdown, 15 * MINUTE_IN_SECONDS );
 			} else {
 				$local_file = SSYS_DIR . 'CHANGELOG.md';
 				$markdown   = file_exists( $local_file ) ? file_get_contents( $local_file ) : '## 1.0.0'; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -142,8 +153,14 @@ final class SSYS_Updater {
 			return false;
 		}
 
-		set_site_transient( $cache_key, $metadata, 6 * HOUR_IN_SECONDS );
+		set_site_transient( $cache_key, $metadata, 15 * MINUTE_IN_SECONDS );
 		return $metadata;
+	}
+
+	private static function icons() {
+		return array(
+			'svg' => 'https://raw.githubusercontent.com/' . SSYS_GITHUB_REPOSITORY . '/main/assets/icon.svg',
+		);
 	}
 
 	private static function package_url( $metadata ) {
@@ -152,38 +169,70 @@ final class SSYS_Updater {
 	}
 
 	private static function format_markdown( $markdown ) {
-		$lines   = preg_split( '/\R/', (string) $markdown );
-		$html    = '';
-		$in_list = false;
+		$lines      = preg_split( '/\R/', (string) $markdown );
+		$html       = '<div class="ssys-release-history">';
+		$in_list    = false;
+		$in_release = false;
+
+		$close_list = static function () use ( &$html, &$in_list ) {
+			if ( $in_list ) {
+				$html   .= '</ul>';
+				$in_list = false;
+			}
+		};
 
 		foreach ( $lines as $line ) {
 			$line = trim( $line );
-			if ( preg_match( '/^#{1,3}\s+(.+)$/', $line, $matches ) ) {
-				if ( $in_list ) {
-					$html   .= '</ul>';
-					$in_list = false;
+			if ( preg_match( '/^##\s+(.+)$/', $line, $matches ) ) {
+				$close_list();
+				if ( $in_release ) {
+					$html .= '</section>';
 				}
-				$html .= '<h3>' . esc_html( $matches[1] ) . '</h3>';
+				$parts = preg_split( '/\s+[—-]\s+/', $matches[1], 2 );
+				$html .= '<section class="ssys-release-card"><header class="ssys-release-header"><span class="ssys-version-badge">v' . esc_html( ltrim( $parts[0], 'vV' ) ) . '</span>';
+				if ( ! empty( $parts[1] ) ) {
+					$html .= '<time>' . esc_html( $parts[1] ) . '</time>';
+				}
+				$html       .= '</header>';
+				$in_release = true;
+			} elseif ( preg_match( '/^###\s+(.+)$/', $line, $matches ) ) {
+				$close_list();
+				$html .= '<h4 class="ssys-change-group"><span aria-hidden="true">' . esc_html( self::group_icon( $matches[1] ) ) . '</span>' . esc_html( $matches[1] ) . '</h4>';
+			} elseif ( preg_match( '/^#\s+(.+)$/', $line, $matches ) ) {
+				$close_list();
+				$html .= '<h3 class="ssys-release-title">' . esc_html( $matches[1] ) . '</h3>';
+			} elseif ( preg_match( '/^>\s*(.+)$/', $line, $matches ) ) {
+				$close_list();
+				$html .= '<p class="ssys-release-summary">' . esc_html( $matches[1] ) . '</p>';
 			} elseif ( preg_match( '/^[-*]\s+(.+)$/', $line, $matches ) ) {
 				if ( ! $in_list ) {
-					$html   .= '<ul>';
+					$html   .= '<ul class="ssys-release-list">';
 					$in_list = true;
 				}
 				$html .= '<li>' . esc_html( $matches[1] ) . '</li>';
 			} elseif ( '' !== $line ) {
-				if ( $in_list ) {
-					$html   .= '</ul>';
-					$in_list = false;
-				}
+				$close_list();
 				$html .= '<p>' . esc_html( $line ) . '</p>';
 			}
 		}
 
-		if ( $in_list ) {
-			$html .= '</ul>';
+		$close_list();
+		if ( $in_release ) {
+			$html .= '</section>';
 		}
 
-		return $html;
+		return $html . '</div>';
+	}
+
+	private static function group_icon( $group ) {
+		$group = strtolower( (string) $group );
+		if ( false !== strpos( $group, 'fix' ) || false !== strpos( $group, 'reliab' ) ) {
+			return '✓';
+		}
+		if ( false !== strpos( $group, 'new' ) || false !== strpos( $group, 'highlight' ) ) {
+			return '✦';
+		}
+		return '↗';
 	}
 }
 

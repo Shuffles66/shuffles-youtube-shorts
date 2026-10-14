@@ -3,7 +3,7 @@
  * Plugin Name: Shuffles Youtube Shorts
  * Plugin URI:  https://github.com/Shuffles66/shuffles-youtube-shorts
  * Description: Displays automatically refreshed, responsive YouTube Shorts galleries from a channel or playlist, with server-side API key storage, a configurable shortcode, and an Elementor widget.
- * Version:     1.0.1
+ * Version:     1.0.2
  * Author:      Shuffles
  * Text Domain: shuffles-youtube-shorts
  * Requires at least: 6.2
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSYS_VERSION', '1.0.1' );
+define( 'SSYS_VERSION', '1.0.2' );
 define( 'SSYS_FILE', __FILE__ );
 define( 'SSYS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSYS_URL', plugin_dir_url( __FILE__ ) );
@@ -111,7 +111,7 @@ final class SSYS_Plugin {
 			'manage_options',
 			'shuffles-youtube-shorts',
 			array( $this, 'render_admin_page' ),
-			'dashicons-video-alt3',
+			SSYS_URL . 'assets/icon.svg',
 			58
 		);
 	}
@@ -150,10 +150,13 @@ final class SSYS_Plugin {
 		?>
 		<div class="wrap ssys-admin-wrap">
 			<section class="ssys-hero">
-				<div>
+				<div class="ssys-brand-lockup">
+					<img class="ssys-brand-icon" src="<?php echo esc_url( SSYS_URL . 'assets/icon.svg' ); ?>" alt="" width="72" height="72" />
+					<div>
 					<p class="ssys-eyebrow"><?php esc_html_e( 'Shuffles video tools', 'shuffles-youtube-shorts' ); ?></p>
 					<h1><?php esc_html_e( 'YouTube Shorts', 'shuffles-youtube-shorts' ); ?></h1>
 					<p><?php esc_html_e( 'Build fast, responsive vertical-video galleries that automatically refresh from a YouTube channel or playlist.', 'shuffles-youtube-shorts' ); ?></p>
+					</div>
 				</div>
 				<span class="ssys-status <?php echo $key_configured ? 'is-ready' : 'needs-key'; ?>">
 					<?php echo $key_configured ? esc_html__( 'API key configured', 'shuffles-youtube-shorts' ) : esc_html__( 'Public feed mode', 'shuffles-youtube-shorts' ); ?>
