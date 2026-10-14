@@ -179,7 +179,7 @@ final class SSYS_Plugin {
 								<input id="ssys-api-key" name="ssys_settings[api_key]" type="password" value="<?php echo esc_attr( $settings['api_key'] ); ?>" autocomplete="new-password" spellcheck="false" placeholder="AIza…" />
 								<button type="button" class="button" id="ssys-toggle-key" aria-pressed="false"><?php esc_html_e( 'Show', 'shuffles-youtube-shorts' ); ?></button>
 							</div>
-							<p class="description"><?php esc_html_e( 'Optional. Restrict a valid key to the YouTube Data API v3 and, where practical, your Cloudways server IP address.', 'shuffles-youtube-shorts' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Optional. Restrict a valid key to the YouTube Data API v3. A Cloudways server-IP restriction is recommended; HTTP-referrer restrictions for this site are also supported.', 'shuffles-youtube-shorts' ); ?></p>
 						</div>
 
 						<div class="ssys-field-row">
@@ -237,7 +237,7 @@ final class SSYS_Plugin {
 							<li><?php echo wp_kses_post( __( 'Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> and select or create a project.', 'shuffles-youtube-shorts' ) ); ?></li>
 							<li><?php esc_html_e( 'Open APIs & Services → Library, find YouTube Data API v3, and enable it.', 'shuffles-youtube-shorts' ); ?></li>
 							<li><?php esc_html_e( 'Open APIs & Services → Credentials, choose Create credentials → API key, and copy the key.', 'shuffles-youtube-shorts' ); ?></li>
-							<li><?php esc_html_e( 'Edit the key and restrict its API access to YouTube Data API v3. For server-side use, prefer an IP-address restriction using your current Cloudways server IP.', 'shuffles-youtube-shorts' ); ?></li>
+							<li><?php esc_html_e( 'Edit the key and restrict its API access to YouTube Data API v3. For server-side use, prefer an IP-address restriction using your current Cloudways server IP. If using an HTTP-referrer restriction, allow this site URL with /* at the end.', 'shuffles-youtube-shorts' ); ?></li>
 							<li><?php esc_html_e( 'Paste the key here, save, and test the connection.', 'shuffles-youtube-shorts' ); ?></li>
 						</ol>
 						<p class="ssys-note"><?php esc_html_e( 'Google applies a daily API quota. A 15–60 minute cache interval is a good balance for most sites.', 'shuffles-youtube-shorts' ); ?></p>

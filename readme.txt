@@ -42,6 +42,7 @@ The playlist takes priority when both channel and playlist are supplied.
 
 = 1.0.1 =
 * Added public Shorts feed fallback so a missing or invalid API key no longer breaks channel galleries.
+* Added site origin and referrer headers for API keys configured with HTTP-referrer restrictions.
 
 = 1.0.0 =
 * Initial release.

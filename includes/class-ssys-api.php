@@ -324,6 +324,10 @@ final class SSYS_API {
 				'timeout'     => 15,
 				'redirection' => 3,
 				'user-agent'  => 'Shuffles-Youtube-Shorts/' . SSYS_VERSION . '; ' . home_url( '/' ),
+				'headers'     => array(
+					'Referer' => home_url( '/' ),
+					'Origin'  => untrailingslashit( home_url( '/' ) ),
+				),
 			)
 		);
 

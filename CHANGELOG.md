@@ -8,6 +8,7 @@ All notable changes to Shuffles Youtube Shorts are documented here. GitHub is th
 - Made API keys optional for channel galleries while preserving YouTube Data API support and server-side key storage.
 - Improved the connection tester so it reports whether the API or public feed supplied the videos.
 - Prevented a bad saved credential from breaking an otherwise public channel gallery.
+- Added site origin and referrer headers so keys restricted to the Byron Rides web origin can be used for server-side API requests.
 
 ## 1.0.0 — 2026-10-14
 
