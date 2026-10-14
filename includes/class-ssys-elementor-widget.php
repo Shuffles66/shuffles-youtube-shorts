@@ -10,27 +10,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class SSYS_Elementor_Widget extends \Elementor\Widget_Base {
-	public function get_name() {
+	public function get_name(): string {
 		return 'shuffles-youtube-shorts';
 	}
 
-	public function get_title() {
+	public function get_title(): string {
 		return __( 'Shuffles YouTube Shorts', 'shuffles-youtube-shorts' );
 	}
 
-	public function get_icon() {
+	public function get_icon(): string {
 		return 'eicon-youtube';
 	}
 
-	public function get_categories() {
-		return array( 'general' );
+	public function get_categories(): array {
+		return array( 'shuffles', 'general' );
 	}
 
-	public function get_keywords() {
+	public function get_keywords(): array {
 		return array( 'youtube', 'shorts', 'video', 'gallery', 'shuffles' );
 	}
 
-	protected function register_controls() {
+	protected function register_controls(): void {
 		$this->start_controls_section(
 			'content_section',
 			array( 'label' => __( 'Gallery', 'shuffles-youtube-shorts' ) )
@@ -89,7 +89,7 @@ final class SSYS_Elementor_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 	}
 
-	protected function render() {
+	protected function render(): void {
 		$settings        = $this->get_settings_for_display();
 		$plugin_settings = SSYS_Plugin::get_settings();
 		$channel         = isset( $settings['channel'] ) ? trim( (string) $settings['channel'] ) : '';

@@ -2,21 +2,24 @@
 
 > Clear, practical updates for the people who run Byron Rides—not a wall of developer jargon.
 
-## 1.0.2 — 14 October 2026
+## 1.0.2 — 15 October 2026
 
 ### New
 
 - Introduced a custom Shuffles Youtube Shorts icon across the WordPress admin menu, setup screen, and update details.
 - Added a redesigned release-history experience with version badges and clearly grouped changes.
+- Added a dedicated Shuffles category and searchable YouTube Shorts widget in the Elementor panel.
 
 ### Improved
 
 - Made release notes easier to scan before upgrading, with responsive cards that inherit the WordPress admin palette.
 - Reduced GitHub metadata and changelog cache time from six hours to fifteen minutes.
+- Starting a Short now automatically pauses every other Short on the page, including galleries inserted dynamically by Elementor.
 
 ### Fixed
 
 - WordPress “Check again” now clears the plugin’s GitHub metadata and changelog caches, so newly published updates appear immediately.
+- Hardened widget registration for current and legacy Elementor lifecycles so the widget reliably appears in the page builder.
 
 ## 1.0.1 — 14 October 2026
 

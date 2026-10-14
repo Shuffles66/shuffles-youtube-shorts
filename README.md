@@ -9,7 +9,8 @@ A WordPress plugin for responsive YouTube Shorts galleries that automatically re
 - Channel ID, `@handle`, channel URL, playlist ID, and playlist URL support.
 - Automatic refresh through configurable WordPress transient caching.
 - Responsive vertical-video gallery that inherits theme colour and background values.
-- Shortcode and Elementor widget support.
+- Single-player coordination: starting one Short pauses all other embedded Shorts.
+- Shortcode support plus an Elementor widget in a dedicated Shuffles category.
 - GitHub-hosted update metadata and changelog.
 - Privacy-enhanced `youtube-nocookie.com` embeds.
 - Branded plugin icon and a polished release-history display in WordPress.

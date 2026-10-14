@@ -22,7 +22,8 @@ Features:
 * Responsive 9:16 video grids that inherit theme colours and backgrounds.
 * Configurable columns, rows, and titles.
 * Privacy-enhanced youtube-nocookie.com embeds.
-* Elementor widget integration when Elementor is active.
+* Single-player coordination automatically pauses other Shorts when a video starts.
+* Elementor widget integration in a dedicated Shuffles category when Elementor is active.
 
 == Installation ==
 
@@ -43,6 +44,8 @@ The playlist takes priority when both channel and playlist are supplied.
 = 1.0.2 =
 * Added a custom Shuffles Youtube Shorts icon throughout WordPress and GitHub update details.
 * Redesigned release notes as a professional, responsive release history.
+* Added single-player coordination so starting one Short pauses the others.
+* Added a dedicated Shuffles category and hardened Elementor widget registration.
 * Fixed stale metadata and changelog caches when an administrator uses Check again.
 
 = 1.0.1 =

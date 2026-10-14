@@ -26,6 +26,7 @@ require_once SSYS_DIR . 'includes/class-ssys-updater.php';
 final class SSYS_Plugin {
 	private static $instance = null;
 	private $gallery_count   = 0;
+	private $elementor_widget_registered = false;
 
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -41,7 +42,9 @@ final class SSYS_Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'wp_ajax_ssys_test_connection', array( $this, 'ajax_test_connection' ) );
 		add_action( 'update_option_ssys_settings', array( $this, 'bust_cache' ), 10, 2 );
+		add_action( 'elementor/elements/categories_registered', array( $this, 'register_elementor_category' ) );
 		add_action( 'elementor/widgets/register', array( $this, 'register_elementor_widget' ) );
+		add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_elementor_widget' ) );
 		add_shortcode( 'shuffles_youtube_shorts', array( $this, 'render_shortcode' ) );
 		SSYS_Updater::init();
 	}
@@ -138,6 +141,7 @@ final class SSYS_Plugin {
 
 	public function enqueue_frontend_assets() {
 		wp_enqueue_style( 'ssys-gallery', SSYS_URL . 'assets/frontend.css', array(), SSYS_VERSION );
+		wp_enqueue_script( 'ssys-gallery-player', SSYS_URL . 'assets/frontend.js', array(), SSYS_VERSION, true );
 	}
 
 	public function render_admin_page() {
@@ -361,12 +365,26 @@ final class SSYS_Plugin {
 		?>
 		<section id="<?php echo esc_attr( $gallery_id ); ?>" class="ssys-gallery" aria-label="<?php echo esc_attr( sprintf( __( 'YouTube Shorts from %s', 'shuffles-youtube-shorts' ), $result['source_title'] ) ); ?>">
 			<div class="ssys-grid" data-cols="<?php echo esc_attr( $cols ); ?>" style="--ssys-cols: <?php echo esc_attr( $cols ); ?>;">
-				<?php foreach ( $result['videos'] as $video ) : ?>
+				<?php foreach ( $result['videos'] as $video_index => $video ) : ?>
 					<article class="ssys-card">
 						<div class="ssys-player">
+							<?php
+							$player_id = $gallery_id . '-video-' . ( $video_index + 1 );
+							$embed_url = add_query_arg(
+								array(
+									'rel'         => 0,
+									'playsinline' => 1,
+									'enablejsapi' => 1,
+									'origin'      => untrailingslashit( home_url( '/' ) ),
+								),
+								'https://www.youtube-nocookie.com/embed/' . rawurlencode( $video['id'] )
+							);
+							?>
 							<iframe
-								src="<?php echo esc_url( 'https://www.youtube-nocookie.com/embed/' . rawurlencode( $video['id'] ) . '?rel=0&playsinline=1' ); ?>"
+								id="<?php echo esc_attr( $player_id ); ?>"
+								src="<?php echo esc_url( $embed_url ); ?>"
 								title="<?php echo esc_attr( $video['title'] ); ?>"
+								data-ssys-player
 								loading="lazy"
 								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 								referrerpolicy="strict-origin-when-cross-origin"
@@ -390,12 +408,39 @@ final class SSYS_Plugin {
 		return '<p class="ssys-message" role="status">' . esc_html( $message ) . '</p>';
 	}
 
-	public function register_elementor_widget( $widgets_manager ) {
+	public function register_elementor_category( $elements_manager ) {
+		$elements_manager->add_category(
+			'shuffles',
+			array(
+				'title' => __( 'Shuffles', 'shuffles-youtube-shorts' ),
+				'icon'  => 'eicon-youtube',
+			)
+		);
+	}
+
+	public function register_elementor_widget( $widgets_manager = null ) {
+		if ( $this->elementor_widget_registered ) {
+			return;
+		}
 		if ( ! class_exists( '\\Elementor\\Widget_Base' ) ) {
 			return;
 		}
+		if ( null === $widgets_manager && class_exists( '\\Elementor\\Plugin' ) ) {
+			$widgets_manager = \Elementor\Plugin::instance()->widgets_manager;
+		}
+		if ( ! is_object( $widgets_manager ) ) {
+			return;
+		}
 		require_once SSYS_DIR . 'includes/class-ssys-elementor-widget.php';
-		$widgets_manager->register( new SSYS_Elementor_Widget() );
+		$widget = new SSYS_Elementor_Widget();
+		if ( method_exists( $widgets_manager, 'register' ) ) {
+			$widgets_manager->register( $widget );
+		} elseif ( method_exists( $widgets_manager, 'register_widget_type' ) ) {
+			$widgets_manager->register_widget_type( $widget );
+		} else {
+			return;
+		}
+		$this->elementor_widget_registered = true;
 	}
 }
 
