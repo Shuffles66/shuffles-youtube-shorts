@@ -2,6 +2,13 @@
 
 All notable changes to Shuffles Youtube Shorts are documented here. GitHub is the source of truth for release notes, and this file is also displayed in the plugin settings screen.
 
+## 1.0.1 — 2026-10-14
+
+- Added an automatic public YouTube Shorts feed fallback when an API key is missing, malformed, rejected, or unavailable.
+- Made API keys optional for channel galleries while preserving YouTube Data API support and server-side key storage.
+- Improved the connection tester so it reports whether the API or public feed supplied the videos.
+- Prevented a bad saved credential from breaking an otherwise public channel gallery.
+
 ## 1.0.0 — 2026-10-14
 
 - Initial release.

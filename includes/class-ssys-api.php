@@ -29,10 +29,18 @@ final class SSYS_API {
 			return new WP_Error( 'ssys_playlist_invalid', __( 'The playlist value is not a valid YouTube playlist ID or URL.', 'shuffles-youtube-shorts' ) );
 		}
 
+		if ( ! self::is_valid_api_key( $api_key ) ) {
+			$result = self::get_public_shorts( $channel, $playlist_id, $limit );
+			if ( ! is_wp_error( $result ) ) {
+				set_transient( $cache_key, $result, $cache_minutes * MINUTE_IN_SECONDS );
+			}
+			return $result;
+		}
+
 		if ( empty( $playlist_id ) ) {
 			$channel_data = self::resolve_channel( $api_key, $channel );
 			if ( is_wp_error( $channel_data ) ) {
-				return $channel_data;
+				return self::public_fallback( $channel_data, $channel, $playlist_id, $limit, $cache_key, $cache_minutes );
 			}
 			$playlist_id  = $channel_data['uploads'];
 			$source_title = $channel_data['title'];
@@ -46,10 +54,10 @@ final class SSYS_API {
 				$api_key
 			);
 			if ( is_wp_error( $playlist_data ) ) {
-				return $playlist_data;
+				return self::public_fallback( $playlist_data, $channel, $playlist_id, $limit, $cache_key, $cache_minutes );
 			}
 			if ( empty( $playlist_data['items'][0] ) ) {
-				return new WP_Error( 'ssys_playlist_not_found', __( 'The YouTube playlist could not be found or is not public.', 'shuffles-youtube-shorts' ) );
+				return self::public_fallback( new WP_Error( 'ssys_playlist_not_found', __( 'The YouTube playlist could not be found or is not public.', 'shuffles-youtube-shorts' ) ), $channel, $playlist_id, $limit, $cache_key, $cache_minutes );
 			}
 			$source_title = sanitize_text_field( $playlist_data['items'][0]['snippet']['title'] );
 		}
@@ -71,7 +79,7 @@ final class SSYS_API {
 
 			$playlist_items = self::request( 'playlistItems', $params, $api_key );
 			if ( is_wp_error( $playlist_items ) ) {
-				return $playlist_items;
+				return self::public_fallback( $playlist_items, $channel, $playlist_id, $limit, $cache_key, $cache_minutes );
 			}
 
 			$ordered_ids = array();
@@ -92,7 +100,7 @@ final class SSYS_API {
 					$api_key
 				);
 				if ( is_wp_error( $details ) ) {
-					return $details;
+					return self::public_fallback( $details, $channel, $playlist_id, $limit, $cache_key, $cache_minutes );
 				}
 
 				$by_id = array();
@@ -134,10 +142,126 @@ final class SSYS_API {
 		$result = array(
 			'source_title' => $source_title ? $source_title : __( 'YouTube', 'shuffles-youtube-shorts' ),
 			'videos'       => array_slice( $videos, 0, $limit ),
+			'method'       => 'api',
 		);
 
 		set_transient( $cache_key, $result, $cache_minutes * MINUTE_IN_SECONDS );
 		return $result;
+	}
+
+	private static function public_fallback( $original_error, $channel, $playlist_id, $limit, $cache_key, $cache_minutes ) {
+		$result = self::get_public_shorts( $channel, $playlist_id, $limit );
+		if ( is_wp_error( $result ) ) {
+			return $original_error;
+		}
+
+		set_transient( $cache_key, $result, $cache_minutes * MINUTE_IN_SECONDS );
+		return $result;
+	}
+
+	public static function is_valid_api_key( $api_key ) {
+		return (bool) preg_match( '/^AIza[A-Za-z0-9_-]{35}$/', trim( (string) $api_key ) );
+	}
+
+	private static function get_public_shorts( $channel, $playlist_id, $limit ) {
+		if ( $playlist_id ) {
+			$url = 'https://www.youtube.com/playlist?list=' . rawurlencode( $playlist_id );
+		} else {
+			$channel_url = self::public_channel_url( $channel );
+			if ( is_wp_error( $channel_url ) ) {
+				return $channel_url;
+			}
+			$url = trailingslashit( $channel_url ) . 'shorts';
+		}
+
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout'     => 20,
+				'redirection' => 4,
+				'user-agent'  => 'Mozilla/5.0 (compatible; Shuffles-Youtube-Shorts/' . SSYS_VERSION . '; +' . home_url( '/' ) . ')',
+				'headers'     => array( 'Accept-Language' => 'en-AU,en;q=0.9' ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'ssys_public_request_failed', __( 'YouTube could not be reached. Please try again shortly.', 'shuffles-youtube-shorts' ) );
+		}
+
+		$status = wp_remote_retrieve_response_code( $response );
+		$html   = wp_remote_retrieve_body( $response );
+		if ( $status < 200 || $status >= 300 || empty( $html ) ) {
+			return new WP_Error( 'ssys_public_response_failed', __( 'The public YouTube feed could not be loaded.', 'shuffles-youtube-shorts' ) );
+		}
+
+		$source_title = __( 'YouTube', 'shuffles-youtube-shorts' );
+		if ( preg_match( '/<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $title_match ) || preg_match( '/<title>([^<]+)<\/title>/i', $html, $title_match ) ) {
+			$source_title = sanitize_text_field( html_entity_decode( $title_match[1], ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+			$source_title = preg_replace( '/\s*-\s*YouTube\s*$/i', '', $source_title );
+		}
+
+		preg_match_all( '/["\']videoId["\']\s*:\s*["\']([A-Za-z0-9_-]{11})["\']/', $html, $matches );
+		$video_ids = array_values( array_unique( isset( $matches[1] ) ? $matches[1] : array() ) );
+		if ( empty( $video_ids ) ) {
+			return new WP_Error( 'ssys_no_public_shorts', __( 'No public Shorts are available right now.', 'shuffles-youtube-shorts' ) );
+		}
+
+		$videos = array();
+		foreach ( array_slice( $video_ids, 0, $limit ) as $video_id ) {
+			$videos[] = array(
+				'id'        => $video_id,
+				'title'     => self::get_public_video_title( $video_id ),
+				'published' => '',
+				'duration'  => 0,
+			);
+		}
+
+		return array(
+			'source_title' => $source_title,
+			'videos'       => $videos,
+			'method'       => 'public',
+		);
+	}
+
+	private static function public_channel_url( $channel ) {
+		$channel = trim( (string) $channel );
+		if ( empty( $channel ) ) {
+			return new WP_Error( 'ssys_channel_required', __( 'Enter a YouTube channel ID, @handle, or channel URL.', 'shuffles-youtube-shorts' ) );
+		}
+
+		if ( preg_match( '/(?:youtube\.com\/channel\/)?(UC[A-Za-z0-9_-]{22})/', $channel, $matches ) ) {
+			return 'https://www.youtube.com/channel/' . rawurlencode( $matches[1] );
+		}
+
+		$handle = $channel;
+		if ( preg_match( '/youtube\.com\/@([^\/?#]+)/i', $channel, $matches ) ) {
+			$handle = $matches[1];
+		}
+		$handle = ltrim( preg_replace( '/[\/?#].*$/', '', $handle ), '@' );
+		if ( ! preg_match( '/^[A-Za-z0-9._-]{3,100}$/', $handle ) ) {
+			return new WP_Error( 'ssys_channel_invalid', __( 'The YouTube channel value is not valid.', 'shuffles-youtube-shorts' ) );
+		}
+
+		return 'https://www.youtube.com/@' . rawurlencode( $handle );
+	}
+
+	private static function get_public_video_title( $video_id ) {
+		$url      = add_query_arg(
+			array(
+				'url'    => 'https://www.youtube.com/watch?v=' . rawurlencode( $video_id ),
+				'format' => 'json',
+			),
+			'https://www.youtube.com/oembed'
+		);
+		$response = wp_remote_get( $url, array( 'timeout' => 8, 'redirection' => 3 ) );
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( ! empty( $data['title'] ) ) {
+				return sanitize_text_field( $data['title'] );
+			}
+		}
+
+		return __( 'YouTube Short', 'shuffles-youtube-shorts' );
 	}
 
 	private static function resolve_channel( $api_key, $channel ) {

@@ -3,7 +3,7 @@
  * Plugin Name: Shuffles Youtube Shorts
  * Plugin URI:  https://github.com/Shuffles66/shuffles-youtube-shorts
  * Description: Displays automatically refreshed, responsive YouTube Shorts galleries from a channel or playlist, with server-side API key storage, a configurable shortcode, and an Elementor widget.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Shuffles
  * Text Domain: shuffles-youtube-shorts
  * Requires at least: 6.2
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSYS_VERSION', '1.0.0' );
+define( 'SSYS_VERSION', '1.0.1' );
 define( 'SSYS_FILE', __FILE__ );
 define( 'SSYS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSYS_URL', plugin_dir_url( __FILE__ ) );
@@ -146,7 +146,7 @@ final class SSYS_Plugin {
 		}
 
 		$settings       = self::get_settings();
-		$key_configured = ! empty( $settings['api_key'] );
+		$key_configured = SSYS_API::is_valid_api_key( $settings['api_key'] );
 		?>
 		<div class="wrap ssys-admin-wrap">
 			<section class="ssys-hero">
@@ -156,7 +156,7 @@ final class SSYS_Plugin {
 					<p><?php esc_html_e( 'Build fast, responsive vertical-video galleries that automatically refresh from a YouTube channel or playlist.', 'shuffles-youtube-shorts' ); ?></p>
 				</div>
 				<span class="ssys-status <?php echo $key_configured ? 'is-ready' : 'needs-key'; ?>">
-					<?php echo $key_configured ? esc_html__( 'API key configured', 'shuffles-youtube-shorts' ) : esc_html__( 'API key required', 'shuffles-youtube-shorts' ); ?>
+					<?php echo $key_configured ? esc_html__( 'API key configured', 'shuffles-youtube-shorts' ) : esc_html__( 'Public feed mode', 'shuffles-youtube-shorts' ); ?>
 				</span>
 			</section>
 
@@ -166,7 +166,7 @@ final class SSYS_Plugin {
 						<span class="ssys-step">1</span>
 						<div>
 							<h2><?php esc_html_e( 'Connect YouTube', 'shuffles-youtube-shorts' ); ?></h2>
-							<p><?php esc_html_e( 'The key is used only for server-side requests and is never added to the public gallery markup.', 'shuffles-youtube-shorts' ); ?></p>
+							<p><?php esc_html_e( 'An API key is optional for channel galleries. When unavailable or invalid, the plugin automatically uses the public YouTube Shorts feed.', 'shuffles-youtube-shorts' ); ?></p>
 						</div>
 					</div>
 
@@ -179,7 +179,7 @@ final class SSYS_Plugin {
 								<input id="ssys-api-key" name="ssys_settings[api_key]" type="password" value="<?php echo esc_attr( $settings['api_key'] ); ?>" autocomplete="new-password" spellcheck="false" placeholder="AIza…" />
 								<button type="button" class="button" id="ssys-toggle-key" aria-pressed="false"><?php esc_html_e( 'Show', 'shuffles-youtube-shorts' ); ?></button>
 							</div>
-							<p class="description"><?php esc_html_e( 'Restrict this key to the YouTube Data API v3 and, where practical, your Cloudways server IP address.', 'shuffles-youtube-shorts' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Optional. Restrict a valid key to the YouTube Data API v3 and, where practical, your Cloudways server IP address.', 'shuffles-youtube-shorts' ); ?></p>
 						</div>
 
 						<div class="ssys-field-row">
@@ -294,9 +294,6 @@ final class SSYS_Plugin {
 		$channel  = isset( $_POST['channel'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['channel'] ) ) ) : $saved['channel'];
 		$playlist = isset( $_POST['playlist'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['playlist'] ) ) ) : $saved['playlist'];
 
-		if ( empty( $api_key ) ) {
-			wp_send_json_error( array( 'message' => __( 'Enter a YouTube API key first.', 'shuffles-youtube-shorts' ) ), 400 );
-		}
 		if ( empty( $channel ) && empty( $playlist ) ) {
 			wp_send_json_error( array( 'message' => __( 'Enter a channel or playlist first.', 'shuffles-youtube-shorts' ) ), 400 );
 		}
@@ -310,9 +307,10 @@ final class SSYS_Plugin {
 			array(
 				'message' => sprintf(
 					/* translators: 1: source name, 2: number of sample Shorts found. */
-					__( 'Connected to %1$s. Found %2$d recent Short(s) in the sample.', 'shuffles-youtube-shorts' ),
+					__( 'Connected to %1$s using %3$s. Found %2$d recent Short(s) in the sample.', 'shuffles-youtube-shorts' ),
 					$result['source_title'],
-					count( $result['videos'] )
+					count( $result['videos'] ),
+					isset( $result['method'] ) && 'api' === $result['method'] ? __( 'the YouTube Data API', 'shuffles-youtube-shorts' ) : __( 'the public Shorts feed', 'shuffles-youtube-shorts' )
 				),
 			)
 		);
@@ -341,9 +339,6 @@ final class SSYS_Plugin {
 		$playlist    = trim( sanitize_text_field( $atts['playlist'] ) );
 		$show_titles = ! in_array( strtolower( (string) $atts['show_titles'] ), array( '0', 'false', 'no', 'off' ), true );
 
-		if ( empty( $settings['api_key'] ) ) {
-			return $this->render_message( __( 'The YouTube gallery needs an API key.', 'shuffles-youtube-shorts' ), true );
-		}
 		if ( empty( $channel ) && empty( $playlist ) ) {
 			return $this->render_message( __( 'The YouTube gallery needs a channel or playlist.', 'shuffles-youtube-shorts' ), true );
 		}

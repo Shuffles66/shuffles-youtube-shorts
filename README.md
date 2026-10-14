@@ -4,7 +4,8 @@ A WordPress plugin for responsive YouTube Shorts galleries that automatically re
 
 ## Features
 
-- YouTube Data API v3 key stored server-side in WordPress.
+- Automatic public YouTube Shorts feed fallback with no API key required for channel galleries.
+- Optional YouTube Data API v3 key stored server-side in WordPress.
 - Channel ID, `@handle`, channel URL, playlist ID, and playlist URL support.
 - Automatic refresh through configurable WordPress transient caching.
 - Responsive vertical-video gallery that inherits theme colour and background values.
