@@ -1,0 +1,11 @@
+{
+  "name": "Shuffles Youtube Shorts",
+  "slug": "shuffles-youtube-shorts",
+  "version": "1.0.0",
+  "requires": "6.2",
+  "tested": "7.1",
+  "requires_php": "7.4",
+  "repository": "https://github.com/Shuffles66/shuffles-youtube-shorts",
+  "changelog": "https://raw.githubusercontent.com/Shuffles66/shuffles-youtube-shorts/main/CHANGELOG.md"
+}
+
