@@ -1,0 +1,14 @@
+#toplevel_page_shuffles-youtube-shorts .wp-menu-image img {
+	box-sizing: content-box;
+	inline-size: 20px !important;
+	block-size: 20px !important;
+	padding: 7px 8px !important;
+	opacity: 1 !important;
+	filter: none !important;
+	border-radius: 6px;
+}
+
+#toplevel_page_shuffles-youtube-shorts:hover .wp-menu-image img,
+#toplevel_page_shuffles-youtube-shorts.wp-has-current-submenu .wp-menu-image img {
+	filter: saturate(1.18) brightness(1.08) !important;
+}

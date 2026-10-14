@@ -4,7 +4,7 @@ Tags: youtube, shorts, video, gallery, elementor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 
 Responsive YouTube Shorts galleries that automatically refresh from a channel or playlist.
@@ -40,6 +40,13 @@ Features:
 The playlist takes priority when both channel and playlist are supplied.
 
 == Changelog ==
+
+= 1.0.3 =
+* Fixed unreadable video titles by selecting the highest-contrast colour from the active theme palette.
+* Reworked the plugin artwork as a vivid, recognisable vertical-video and shuffle mark.
+* Added 128px and 256px PNG icon fallbacks so WordPress update screens no longer show the generic plugin icon.
+* Corrected the WordPress admin-menu icon size, colour, opacity, and hover treatment.
+* Linked the Shuffles author credit to the official GitHub profile on the Plugins screen.
 
 = 1.0.2 =
 * Only one Short plays at a time; starting another sends a pause command to every other Shuffles player on the page.

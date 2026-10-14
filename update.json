@@ -1,7 +1,7 @@
 {
   "name": "Shuffles Youtube Shorts",
   "slug": "shuffles-youtube-shorts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "requires": "6.2",
   "tested": "7.1",
   "requires_php": "7.4",

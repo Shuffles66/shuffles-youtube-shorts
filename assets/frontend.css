@@ -56,7 +56,7 @@
 	margin: 0.65rem 0 0;
 	padding: 0;
 	max-inline-size: 100%;
-	color: inherit;
+	color: var(--ssys-title-color, inherit);
 	font: inherit;
 	font-weight: 600;
 	line-height: 1.35;

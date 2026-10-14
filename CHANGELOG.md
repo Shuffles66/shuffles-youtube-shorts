@@ -2,6 +2,26 @@
 
 > Clear, practical updates for the people who run Byron Rides—not a wall of developer jargon.
 
+## 1.0.3 — 15 October 2026
+
+### Theme integration
+
+- Fixed dark video titles disappearing against the Byron Rides purple gallery section.
+- The plugin now measures the gallery background and selects the highest-contrast colour from the active WordPress, Astra, or Elementor palette. It only falls back to black or white when no theme colour meets readable contrast.
+- Title typography, spacing, and transparent card backgrounds still inherit the active theme; only the unreadable text colour is corrected.
+
+### Brand icon
+
+- Reworked the icon as a vivid purple, pink, cyan, and yellow vertical-video mark with a bold play button and shuffle arrows that remain legible at WordPress menu size.
+- Added WordPress-compatible 128px and 256px PNG fallbacks alongside the scalable SVG, preventing update and plugin-information screens from reverting to the generic plugin icon.
+- Corrected the admin-menu icon dimensions, full-colour opacity, and hover treatment throughout WordPress.
+- Added the official Shuffles GitHub profile as the plugin Author URI, making the author name clickable on the WordPress Plugins screen.
+
+### Upgrade impact
+
+- No shortcode or settings changes are required.
+- Existing galleries are recoloured automatically after the updated front-end script loads.
+
 ## 1.0.2 — 15 October 2026
 
 ### Playback behaviour
